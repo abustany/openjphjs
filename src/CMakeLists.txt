@@ -1,8 +1,8 @@
 
-add_executable(openjphjs jslib.cpp)
+add_executable(openjphjs jslib.cpp tracing.cpp)
 
 target_link_libraries(openjphjs PRIVATE openjphsimd)
-target_compile_options(openjphjs PRIVATE -DOJPH_ENABLE_WASM_SIMD -msimd128)
+target_compile_options(openjphjs PRIVATE -DOJPH_ENABLE_WASM_SIMD -msimd128 --tracing)
 target_compile_features(openjphjs PUBLIC cxx_std_11)
 set_target_properties(
     openjphjs 
@@ -22,4 +22,8 @@ set_target_properties(
       -s EXPORTED_RUNTIME_METHODS=[ccall] \
       -s MODULARIZE=1 \
       -s EXPORT_ES6=1 \
-   ")
+      --tracing \
+      --js-library ${CMAKE_CURRENT_SOURCE_DIR}/tracing.js \
+   "
+   LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tracing.js"
+)

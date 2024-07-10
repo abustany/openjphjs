@@ -33,6 +33,9 @@ static unsigned int getSIMDLevel() {
 EMSCRIPTEN_BINDINGS(charlsjs) {
     function("getVersion", &getVersion);
     function("getSIMDLevel", &getSIMDLevel);
+
+    function("configureTracing", &configureTracing);
+    function("closeTracing", &closeTracing);
 }
 
 EMSCRIPTEN_BINDINGS(FrameInfo) {

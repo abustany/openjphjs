@@ -20,6 +20,7 @@
 #include "FrameInfo.hpp"
 #include "Point.hpp"
 #include "Size.hpp"
+#include "tracing.hpp"
 
 /// <summary>
 /// JavaScript API for decoding HTJ2K bistreams with OpenJPH
@@ -278,6 +279,7 @@ private:
 
   void decode_(ojph::codestream &codestream, const FrameInfo &frameInfo, size_t decompositionLevel)
   {
+    reportFrameStart();
 
     // calculate the resolution at the requested decomposition level and
     // allocate destination buffer
@@ -285,7 +287,12 @@ private:
     int resolutionLevel = numDecompositions_ - decompositionLevel;
     const size_t bytesPerPixel = (frameInfo_.bitsPerSample + 8 - 1) / 8;
     const size_t destinationSize = sizeAtDecompositionLevel.width * sizeAtDecompositionLevel.height * frameInfo.componentCount * bytesPerPixel;
-    pDecoded_->resize(destinationSize);
+    if (pDecoded_->size() != destinationSize) {
+      std::string msg = std::string("will resize from ") + std::to_string(pDecoded_->size()) + std::string(" to ") + std::to_string(destinationSize);
+      reportMessage("decode", msg.c_str());
+      pDecoded_->resize(destinationSize);
+      reportMessage("decode", "resized pDecoded_");
+    }
 
     // set the level to read to and reconstruction level to the specified decompositionLevel
     codestream.restrict_input_resolution(decompositionLevel, decompositionLevel);
@@ -390,6 +397,9 @@ private:
         }
       }
     }
+
+    reportFrameEnd();
+    reportMemoryUsage();
   }
 
   std::vector<uint8_t>* pEncoded_;
