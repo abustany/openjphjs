@@ -6,3 +6,4 @@ OpenJPH
 .DS_Store
 bin
 /.direnv
+/dist
