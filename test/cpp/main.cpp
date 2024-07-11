@@ -63,23 +63,22 @@ void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
     }
 }
 
-void decodeFile(const char *path, size_t iterations = 1)
+void decodeFile(HTJ2KDecoder *decoder, const char *path, size_t iterations = 1)
 {
-    HTJ2KDecoder decoder;
     std::vector<uint8_t> encodedBytes;
-    //std::vector<uint8_t> &encodedBytes = decoder.getEncodedBytes();
     readFile(path, encodedBytes);
-    decoder.setEncodedBytes(&encodedBytes);
+    auto encodedBuffer = decoder->getEncodedBuffer(encodedBytes.size());
+    std::copy(encodedBytes.begin(), encodedBytes.end(), encodedBuffer->begin());
 
     timespec start, finish, delta;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    decoder.readHeader();
+    decoder->readHeader();
     // Size resolutionAtLevel = decoder.calculateDecompositionLevel(1);
     // std::cout << resolutionAtLevel.width << ',' << resolutionAtLevel.height << std::endl;
 
     for (int i = 0; i < iterations; i++)
     {
-        decoder.decode();
+        decoder->decode();
     }
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &finish);
@@ -88,7 +87,7 @@ void decodeFile(const char *path, size_t iterations = 1)
     auto ns = delta.tv_sec * 1000000000.0 + delta.tv_nsec;
     auto totalTimeMS = ns / 1000000.0;
 
-    auto frameInfo = decoder.getFrameInfo();
+    auto frameInfo = decoder->getFrameInfo();
     auto timePerFrameMS = ns / 1000000.0 / (double)iterations;
     auto pixels = (frameInfo.width * frameInfo.height);
     auto megaPixels = (double)pixels / (1024.0 * 1024.0);
@@ -129,12 +128,13 @@ void encodeFile(const char *inPath, const FrameInfo frameInfo, const char *outPa
 int main(int argc, char **argv)
 {
     const size_t iterations = (argc > 1) ? atoi(argv[1]) : 1;
-    decodeFile("test/fixtures/j2c/CT1.j2c", iterations);
-    decodeFile("test/fixtures/j2c/MG1.j2c", iterations);
-    decodeFile("test/fixtures/j2c/38320-4k.j2c", iterations);
+    HTJ2KDecoder decoder;
+    decodeFile(&decoder, "test/fixtures/j2c/CT1.j2c", iterations);
+    decodeFile(&decoder, "test/fixtures/j2c/MG1.j2c", iterations);
+    decodeFile(&decoder, "test/fixtures/j2c/38320-4k.j2c", iterations);
 
-    // decodeFile("test/fixtures/j2c/CT2.j2c");
-    // decodeFile("test/fixtures/j2c/MG1.j2c");
+    // decodeFile(&decoder, "test/fixtures/j2c/CT2.j2c");
+    // decodeFile(&decoder, "test/fixtures/j2c/MG1.j2c");
 /*
     {
         FrameInfo frameInfo;

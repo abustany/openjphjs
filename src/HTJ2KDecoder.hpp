@@ -64,46 +64,20 @@ public:
   /// Returns the buffer to store the encoded bytes.  This method is not exported
   /// to JavaScript, it is intended to be called by C++ code
   /// </summary>
-  std::vector<uint8_t> &getEncodedBytes()
+  std::vector<uint8_t>* getEncodedBuffer(size_t encodedSize)
   {
-    return *pEncoded_;
-  }
-
-  /// <summary>
-  /// Sets a pointer to a vector containing the encoded bytes.  This can be used to avoid having to copy the encoded.  Set to 0
-  /// to reset to the internal buffer
-  /// </summary>
-  void setEncodedBytes(std::vector<uint8_t>* pEncoded)
-  {
-    if(pEncoded == 0) {
-      pEncoded_ = &encodedInternal_;
-    } else {
-      pEncoded_ = pEncoded;
-    }
+    pEncoded_->resize(encodedSize);
+    return pEncoded_;
   }
 
   /// <summary>
   /// Returns the buffer to store the decoded bytes.  This method is not exported
   /// to JavaScript, it is intended to be called by C++ code
   /// </summary>
-  const std::vector<uint8_t> &getDecodedBytes() const
+  const std::vector<uint8_t>* getDecodedBuffer() const
   {
-    return *pDecoded_;
+    return pEncoded_;
   }
-
-  /// <summary>
-  /// Sets a pointer to a vector containing the encoded bytes.  This can be used to avoid having to copy the encoded.  Set to 0
-  /// to reset to the internal buffer
-  /// </summary>
-  void setDecodedBytes(std::vector<uint8_t>* pDecoded)
-  {
-    if(pDecoded == 0) {
-      pDecoded_ = &decodedInternal_;
-    } else {
-      pDecoded_ = pDecoded;
-    }
-  }
-
 
 #endif
 
